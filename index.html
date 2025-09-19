@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Fixed Content Website</title>
+        <link rel="stylesheet" href="core.css">
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="font.css">
+        <script src="utility.js"></script>
+        <script src="render.js"></script>
+        <script src="websocket.js"></script>
+        <script>
+            let country_ranking = null; // points ranking (main)
+            let vote_ranking = null;    // vote ranking
+            let latest_votes = null;    // latest votes variable
+            let latest_events = null;
+            let user_ranking = null;
+            let total_votes = null;
+            let total_points = null;
+        </script>
+    <body onload="init(); loadWebSocket(); updateTime(); scroll(); loopMapViewbox();">
+        <div id="connecting">
+            <p>Trying to establish WebSocket connection...</p>
+            <p>If this takes longer than a few seconds, your Websocket may be set up improperly.</p>
+        </div>
+        <div id="connection-failed" class="hidden">
+            <h1>Connection Error</h1>
+            <p>The WebSocket connection could not be established or was unexpectedly closed.</p>
+            <p>If you've resolved the issue, please reload this page to try again.</p>
+            <p>WebSocket link: <code id="ws-link"></code></p>
+        </div>
+        <div id="site-content" class="hidden">
+            <div id="heading-grid">
+                <h1 id="main-heading">LiveVote Country <a style="font-size: 30px;">by</a> 𝒢</h1>
+                <div id="info-grid">
+                    <div id="time-grid">
+                        <p>UTC: <a id="current-utc">2025-09-12 19:19:47</a></p>
+                        <p>Last vote: <a id="latest-update">?? minutes ago</a></p>
+                    </div>
+                    <div id="total-grid">
+                        <p>Total:</p>
+                        <div id="total-values-grid">
+                            <p><a id="total-points">5 Quintillion!!</a> points</p>
+                            <p><a id="total-votes">3</a> votes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="separator-horizontal"></div>
+            <div id="votes-info-grid">
+                <div id="votes-grid">
+                    <div id="country-column-1" class="country-column"></div>
+                    <div id="country-column-2" class="country-column"></div>
+                    <div id="country-column-3" class="country-column"></div>
+                    <div id="scrollable-column-container">
+                        <div id="country-column-4" class="country-column"></div>
+                    </div>
+                </div>
+                <div class="separator-vertical"></div>
+                <div id="utility-grid">
+                    <div id="utility-top-section">
+                        <object id="vote-map" data="/media/map/World Map.svg" type="image/svg+xml"></object>
+                    </div>
+                    <div id="utility-bottom-section">
+                        <div id="top-users-grid">
+                            <h2 class="utility-heading">👤 Top Users</h2>
+                            <div id="top-users">
+                            </div>
+                        </div>
+                        <div id="latest-votes-grid">
+                            <h2 class="utility-heading">🗳️ Latest Votes</h2>
+                            <div id="latest-votes"></div>
+                        </div>
+                        <div id="latest-events-grid">
+                            <h2 class="utility-heading">🎉 Latest Events</h2>
+                            <div id="latest-events"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

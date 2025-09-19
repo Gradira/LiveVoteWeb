@@ -1,0 +1,232 @@
+body {
+    font-family: "Noto Sans", sans-serif;
+}
+
+a, p, h1 {
+    margin: 0;
+}
+
+p {
+    font-size: 30px;
+}
+
+.country-field p, .user-info p, .latest-vote p, .latest-event p {
+    font-size: 16px;
+}
+
+h1 {
+    font-size: 55px;
+    font-weight: normal;
+}
+
+#heading-grid {
+    display: grid;
+    grid-template-columns: .8fr 1fr;
+}
+
+#main-heading, .utility-heading {
+    text-align: center;
+}
+
+#info-grid {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+#time-grid {
+    display: grid;
+    grid-template-columns: auto;
+}
+
+#total-grid {
+    display: grid;
+    grid-template-columns: .2fr 1fr;
+    align-items: center;
+}
+
+#site-content {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+}
+
+#total-values-grid {
+    display: grid;
+    grid-template-columns: auto;
+}
+
+#votes-info-grid {
+    display: grid;
+    grid-template-columns: 2fr auto 1.5fr;
+    height: 100%;
+}
+
+#votes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0px, 1fr));
+    gap: 10px;
+    margin-right: 9px;
+}
+
+.country-column {
+    display: grid;
+    grid-template-columns: auto;
+}
+
+#scrollable-column-container {
+    height: 990px;
+    overflow: hidden;
+    position: relative;
+}
+
+#country-column-4 {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+    gap: 2px;
+}
+
+.country-field {
+    display: grid;
+    grid-template-columns: .2fr 1fr;
+    gap: 4px;
+    align-items: center;
+    /* animation: glow-red 1s ease; */
+}
+
+.country-flag {
+    width: 55px;
+}
+
+.country-title {
+    max-width: 205px;       /* limit width */
+    white-space: nowrap;    /* keep text on one line */
+    overflow: hidden;       /* cut off excess text */
+    position: relative;
+}
+
+.country-title::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 10px;            /* size of the fade */
+    background: linear-gradient(to right, transparent, #222222);
+    /* match the background color */
+}
+
+.country-info-grid {
+    display: grid;
+    grid-template-columns: auto;
+}
+
+.country-info-bottom {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    grid-row-end: auto;
+    grid-auto-columns: min-content;
+}
+
+.country-info-bottom p:nth-child(2) {
+    text-align: right;
+}
+
+.country-points, .country-votes {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(.42,2,.58,.6);
+}
+
+.separator-vertical {
+    width: 2px;
+    height: 100%;
+}
+
+.separator-horizontal {
+    height: 2px;
+    width: 100%;
+}
+
+.separator-vertical, .separator-horizontal {
+    background-color: #35393b
+}
+
+#utility-grid {
+    display: grid;
+    grid-template-rows: .8fr 1fr;
+    gap: 10px;
+}
+
+#utility-top-section {
+    display: grid;
+}
+
+#top-users-grid, #latest-votes-grid, #latest-events-grid {
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+#vote-map {
+    width: 100%;
+    /* place-self: center; */
+    max-height: 414px;
+}
+
+#utility-bottom-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+
+.user-info, .latest-vote, .latest-event, latest-event {
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto auto 1fr;
+    gap: 4px;
+}
+
+.user-ranking {
+    width: 70px;
+}
+
+.user-rank {
+    width: 25px;
+    display: inline-block;
+}
+
+.user-lvl {
+    width: 100%;
+    display: inline-block;
+}
+
+.user-name, .latest-vote-user-name, .latest-event-subject {
+    white-space: nowrap;    /* keep text on one line */
+    overflow: hidden;       /* cut off excess text */
+    position: relative;
+}
+
+.user-name {
+    max-width: 160px;
+}
+
+.latest-vote-user-name {
+    max-width: 180px;
+}
+
+.latest-event-subject {
+    max-width: 160px;
+}
+
+.user-name::after, .latest-vote-user-name::after, .latest-event-subject::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 10px;            /* size of the fade */
+    background: linear-gradient(to right, transparent, #222222);
+    /* match the background color */
+}
+
+.user-country-flag, .latest-vote-country-flag, .latest-event-country-flag {
+    width: 25px;
+}
