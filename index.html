@@ -19,17 +19,15 @@
             let total_points = null;
         </script>
     <body onload="init(); loadWebSocket(); updateTime(); scroll(); loopMapViewbox();">
-        <div id="connecting">
-            <p>Trying to establish WebSocket connection...</p>
-            <p>If this takes longer than a few seconds, your Websocket may be set up improperly.</p>
-        </div>
-        <div id="connection-failed" class="hidden">
-            <h1>Connection Error</h1>
-            <p>The WebSocket connection could not be established or was unexpectedly closed.</p>
-            <p>If you've resolved the issue, please reload this page to try again.</p>
-            <p>WebSocket link: <code id="ws-link"></code></p>
-        </div>
-        <div id="site-content" class="hidden">
+        <svg
+            class="svg-viewport"
+            viewBox="0 0 1920 1080"
+            preserveAspectRatio="xMidYMid meet"
+            xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="1920" height="1080">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="width:1920px; height:1080px; background:#222;">
+                    <!-- Put your entire #site-content here (or even the entire body, except the SVG) -->
+                    <div id="site-content" class="hidden">
             <div id="heading-grid">
                 <h1 id="main-heading">LiveVote Country <a style="font-size: 30px;">by</a> 𝒢</h1>
                 <div id="info-grid">
@@ -78,6 +76,19 @@
                     </div>
                 </div>
             </div>
+        </div>
+                </div>
+            </foreignObject>
+        </svg>
+        <div id="connecting">
+            <p>Trying to establish WebSocket connection...</p>
+            <p>If this takes longer than a few seconds, your Websocket may be set up improperly.</p>
+        </div>
+        <div id="connection-failed" class="hidden">
+            <h1>Connection Error</h1>
+            <p>The WebSocket connection could not be established or was unexpectedly closed.</p>
+            <p>If you've resolved the issue, please reload this page to try again.</p>
+            <p>WebSocket link: <code id="ws-link"></code></p>
         </div>
     </body>
 </html>
