@@ -49,8 +49,8 @@ function getVoteRank(alpha2) {
 
 function recalcTotals() {
     country_ranking.forEach(entry => {
-        total_points += entry.points;
-        total_votes += entry.votes;
+        total_points += entry.cache.points;
+        total_votes += entry.cache.votes;
     });
 
     return {
@@ -70,6 +70,9 @@ function processEvent(event) {
         latest_events = data.latest_events;
         renderUpdates();
         updateLatestVote();
+
+        total_votes = 0;
+        total_points = 0;
         recalcTotals();
         renderTotals();
 

@@ -10,8 +10,8 @@ function initCountries() {
                         </p>
                     </div>
                     <div class="country-info-bottom">
-                        <p><a class="country-points">undefined</a> pt</p>
-                        <p><a class="country-votes">undefined</a> vt</p>
+                        <p><a class="country-points">??</a> pt</p>
+                        <p><a class="country-votes">??</a> vt</p>
                     </div>
                 </div>
             </div>
@@ -327,12 +327,12 @@ function renderCountryRanking() {
         const new_points = country_data.cache.points;
         let changed = false;
 
-        if ((old_votes != new_votes.toLocaleString('en-US')) || (new_votes == undefined)) {
+        if ((old_votes != new_votes.toLocaleString('en-US')) || (new_votes == '??')) {
             // animateCounter(f_votes, new_votes);
             f_votes.innerHTML = new_votes.toLocaleString('en-US');
             f_votes_rank.innerText = votes_rank;
             changed = true;
-        } if ((old_points != new_points.toLocaleString('en-US')) || (new_points == undefined)) {
+        } if ((old_points != new_points.toLocaleString('en-US')) || (new_points == '??')) {
             animateCounter(f_points, new_points);
             f_points_rank.innerText = get_rank_string(points_rank);
             const unitary_points = country_data.cache.points / country_ranking[0].cache.points;
@@ -440,6 +440,7 @@ function renderUpdates() {
 }
 
 function updateLatestVote() {
+    if (latest_votes.length == 0) { return }
     const diffr = timeDiffrString(latest_votes[0].timestamp)
     document.querySelector('#latest-update').innerText = diffr
 }
