@@ -1,37 +1,85 @@
+// --- Helper for mapping country code to DOM element ---
+const countryElements = {}; // {alpha2: countryFieldElement}
+
 function initCountries() {
-    function insertHTML(obj, hidden) {
-        obj.insertAdjacentHTML("beforeend", `
-            <div class="country-field${hidden ? ' hidden' : ''}" id="country-field-${field_n}">
-                <img class="country-flag" src="/media/flags/unknown.svg">
-                <div class="country-info-grid">
-                    <div class="country-info-top">
-                        <p class="country-title">
-                        <a class="points-rank">?</a> (<a class="votes-rank">??</a>) <a class="country-code">??</a> - <a class="country-name"> ?????????</a>
-                        </p>
-                    </div>
-                    <div class="country-info-bottom">
-                        <p><a class="country-points">??</a> pt</p>
-                        <p><a class="country-votes">??</a> vt</p>
-                    </div>
+    let field_n = 0;
+
+    function createCountryField(alpha2 = "??", hidden = false) {
+        const div = document.createElement("div");
+        div.className = `country-field${hidden ? ' hidden' : ''}`;
+        div.id = `country-field-${field_n}`;
+        div.innerHTML = `
+            <img class="country-flag" src="/media/flags/${alpha2}.svg">
+            <div class="country-info-grid">
+                <div class="country-info-top">
+                    <p class="country-title">
+                    <a class="points-rank">?</a> (<a class="votes-rank">??</a>) <a class="country-code">${alpha2}</a> - <a class="country-name"> ?????????</a>
+                    </p>
+                </div>
+                <div class="country-info-bottom">
+                    <p><a class="country-points">??</a> pt</p>
+                    <p><a class="country-votes">??</a> vt</p>
                 </div>
             </div>
-        `);
-    }
-    let field_n = 0;
-    for (let i = 1; i < 4; i++) {
-        column = document.querySelector(`#country-column-${i}`)
-        for (let i = 0; i < 20; i++) {
-            field_n += 1;
-            insertHTML(column, false);
-        }
+        `;
+        return div;
     }
 
-    column = document.querySelector('#country-column-4')
-    const topFields = field_n;
-    for (let i = 0; i < (249-topFields); i++) {
-        field_n += 1;
-        insertHTML(column, false);
+    // Create country fields and store references by country code
+    for (let col = 1; col < 4; col++) {
+        const column = document.querySelector(`#country-column-${col}`);
+        for (let i = 0; i < 20; i++) {
+            field_n += 1;
+            const el = createCountryField(country_ranking[field_n-1].alpha2, false);
+            column.appendChild(el);
+        }
     }
+    const column = document.querySelector('#country-column-4');
+    const topFields = field_n;
+    for (let i = 0; i < (country_ranking.length - topFields); i++) {
+        field_n += 1;
+        const el = createCountryField(country_ranking[field_n-1].alpha2, false);
+        column.appendChild(el);
+    }
+
+    // Store references by country code for later use
+    const allFields = document.querySelectorAll('.country-field');
+    allFields.forEach(el => {
+        // On init, country code is ??, will be updated later
+        const code = el.querySelector('.country-code').innerText;
+        countryElements[code] = el;
+    });
+
+    countries_initialized = true;
+}
+
+// --- Animate moving countries ---
+function animateCountryMove(element, fromIndex, toIndex, parent) {
+    // Calculate initial position
+    const initialRect = element.getBoundingClientRect();
+    // Move DOM element to new position
+    if (toIndex >= parent.children.length) {
+        parent.appendChild(element);
+    } else {
+        parent.insertBefore(element, parent.children[toIndex]);
+    }
+    // Force layout to get final position
+    const finalRect = element.getBoundingClientRect();
+    // Calculate delta
+    const deltaY = initialRect.top - finalRect.top;
+    // Apply transform to start from old position
+    element.style.transition = 'none';
+    element.style.transform = `translateY(${deltaY}px)`;
+    // Use rAF to trigger transition
+    requestAnimationFrame(() => {
+        element.style.transition = 'transform 0.5s cubic-bezier(.42,2,.58,.6)';
+        element.style.transform = '';
+    });
+    // Remove transition after animation
+    element.addEventListener('transitionend', function handler() {
+        element.style.transition = '';
+        element.removeEventListener('transitionend', handler);
+    });
 }
 
 function initUsers() {
@@ -90,7 +138,6 @@ function initLatestEvents() {
 }
 
 function init() {
-    initCountries();
     initUsers();
     initLatestVotes();
     initLatestEvents();
@@ -98,46 +145,52 @@ function init() {
 
 
 function animateCounter(counter, newValue) {
-  const start = +counter.innerHTML.replace(/,/g, "");
-  const target = newValue;
-  const duration = 1000;
-  const startTime = performance.now();
+    // Parse the current value, or fallback to 0 if not a number
+    const start = parseInt(counter.innerHTML.replace(/,/g, "")) || 0;
+    const target = newValue;
+    const duration = 1000;
+    const startTime = performance.now();
 
-  // Glow text function
-  function glowText(container) {
-    const elements = container.querySelectorAll("*");
-    elements.forEach(el => {
-      if (el.nodeType === 1 && el.textContent.trim() !== "") {
-        el.classList.add("glow");
-      }
-    });
+    // Glow text function
+    function glowText(container) {
+        const elements = container.querySelectorAll("*");
+        elements.forEach(el => {
+            if (el.nodeType === 1 && el.textContent.trim() !== "") {
+                el.classList.add("glow");
+            }
+        });
 
-    setTimeout(() => {
-      elements.forEach(el => el.classList.remove("glow"));
-    }, 900); // Glow lasts 900ms
-  }
-
-  // Only swell if value is increasing
-  if (target > start) {
-    counter.classList.add('swell');
-    glowText(counter.parentElement.parentElement.parentElement);
-    setTimeout(() => counter.classList.remove('swell'), 900);
-  }
-
-  function update(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const value = Math.floor(start + (target - start) * progress);
-    counter.innerHTML = value.toLocaleString('en-US');
-
-    if (progress < 1) {
-      requestAnimationFrame(update);
-    } else {
-      counter.innerHTML = target.toLocaleString('en-US');
+        setTimeout(() => {
+            elements.forEach(el => el.classList.remove("glow"));
+        }, 900); // Glow lasts 900ms
     }
-  }
 
-  requestAnimationFrame(update);
+    // Only swell if value is increasing
+    if (target > start) {
+        counter.classList.add('swell');
+        // go up 3 parent levels to country-field
+        let container = counter;
+        for (let i = 0; i < 3; i++) {
+            if (container.parentElement) container = container.parentElement;
+        }
+        glowText(container);
+        setTimeout(() => counter.classList.remove('swell'), 900);
+    }
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = Math.floor(start + (target - start) * progress);
+        counter.innerHTML = value.toLocaleString('en-US');
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            counter.innerHTML = target.toLocaleString('en-US');
+        }
+    }
+
+    requestAnimationFrame(update);
 }
 
 
@@ -298,56 +351,95 @@ function renderTotals() {
     document.querySelector('#total-votes').innerText = total_votes.toLocaleString('en-US');
 }
 
+function findCountryFieldByCode(code) {
+    const fields = document.querySelectorAll('.country-field');
+    for (const field of fields) {
+        const countryCodeEl = field.querySelector('.country-code');
+        if (countryCodeEl && countryCodeEl.innerText.trim() === code) {
+            return field;
+        }
+    }
+    return null;
+}
+
 function renderCountryRanking() {
+    // Build mapping: alpha2 -> country_data
+    const newOrder = country_ranking.map(c => c.alpha2);
+
+    function getColumnParent(index) {
+        if (index < 20) return document.querySelector('#country-column-1');
+        if (index < 40) return document.querySelector('#country-column-2');
+        if (index < 60) return document.querySelector('#country-column-3');
+        return document.querySelector('#country-column-4');
+    }
+
+    // Update all countries (details, points, etc)
     country_ranking.forEach((country_data, index) => {
-        let points_rank = index + 1;
-        country_field = document.querySelector(`#country-field-${points_rank}`);
+        const code = country_data.alpha2;
+        let el = countryElements[code];
 
-        f_country_code = country_field.querySelector('.country-code');
-        f_country_name = country_field.querySelector('.country-name');
-        f_country_flag = country_field.querySelector('.country-flag');
-        f_points_rank = country_field.querySelector('.points-rank');
-        f_votes_rank = country_field.querySelector('.votes-rank');
-        f_votes = country_field.querySelector('.country-votes');
-        f_points = country_field.querySelector('.country-points');
-
-        const old_country = f_country_code.innerText;
-        const new_country = country_data.alpha2;
-        let votes_rank = getVoteRank(new_country);
-
-        if (old_country != new_country) {
-            f_country_name.innerText = country_data.name;
-            f_country_code.innerText = country_data.alpha2;
-            f_country_flag.src = `/media/flags/${country_data.alpha2}.svg`;
+        // If country not yet mapped, find and map
+        if (!el) {
+            el = findCountryFieldByCode(code);
+            if (el) countryElements[code] = el;
         }
+        if (!el) return;
 
-        const old_votes = f_votes.innerText;
-        const new_votes = country_data.cache.votes;
-        const old_points = f_points.innerText;
+        // Update details
+        el.querySelector('.country-name').innerText = country_data.name;
+        el.querySelector('.country-code').innerText = code;
+        el.querySelector('.country-flag').src = `/media/flags/${code}.svg`;
+
+        const f_points_rank = el.querySelector('.points-rank');
+        const f_votes_rank = el.querySelector('.votes-rank');
+        const f_votes = el.querySelector('.country-votes');
+        const f_points = el.querySelector('.country-points');
+        const votes_rank = getVoteRank(code);
+
+        const old_points = parseInt(f_points.innerHTML.replace(/,/g, "")) || 0;
         const new_points = country_data.cache.points;
-        let changed = false;
-
-        if ((old_votes != new_votes.toLocaleString('en-US')) || (new_votes == '??')) {
-            // animateCounter(f_votes, new_votes);
-            f_votes.innerHTML = new_votes.toLocaleString('en-US');
-            f_votes_rank.innerText = votes_rank;
-            changed = true;
-        } if ((old_points != new_points.toLocaleString('en-US')) || (new_points == '??')) {
-            animateCounter(f_points, new_points);
-            f_points_rank.innerText = get_rank_string(points_rank);
-            const unitary_points = country_data.cache.points / country_ranking[0].cache.points;
-            renderMapUpdate(country_data.alpha2, getGrayShade(unitary_points))
-            changed = true;
+        if (old_points !== new_points) {
+            animateCounter(f_points, new_points); // This will animate!
+        } else {
+            f_points.innerHTML = new_points.toLocaleString('en-US'); // fallback, no change
         }
 
-        /* if (changed) {
-            console.log(changed)
-            country_field.classList.add('active');
-            setTimeout(() => {
-              country_field.classList.remove('active');
-            }, 100); // match animation duration
-        } */
+        f_votes.innerText = country_data.cache.votes.toLocaleString('en-US');
+        f_points_rank.innerText = get_rank_string(index + 1);
+        f_votes_rank.innerText = votes_rank;
 
+        // Animate counter if needed
+        animateCounter(f_points, country_data.cache.points);
+
+        // Color map update
+        const unitary_points = country_data.cache.points / country_ranking[0].cache.points;
+        renderMapUpdate(country_data.alpha2, getGrayShade(unitary_points));
+    });
+
+    // --- Animate/move country fields to new order ---
+    // For each column, sort and move elements
+    const columns = [
+        document.querySelector('#country-column-1'),
+        document.querySelector('#country-column-2'),
+        document.querySelector('#country-column-3'),
+        document.querySelector('#country-column-4'),
+    ];
+
+    columns.forEach((parent, colIdx) => {
+        // Calculate indices for this column
+        let start = colIdx * 20;
+        let end = (colIdx === 3) ? country_ranking.length : start + 20;
+        const subOrder = country_ranking.slice(start, end).map(c => c.alpha2);
+
+        // Move elements to match order in this column
+        subOrder.forEach((code, newIndex) => {
+            const el = countryElements[code];
+            if (!el) return;
+            const currentIndex = Array.from(parent.children).indexOf(el);
+            if (currentIndex !== newIndex) {
+                animateCountryMove(el, currentIndex, newIndex, parent);
+            }
+        });
     });
 }
 
@@ -437,6 +529,7 @@ function renderUpdates() {
     renderUserUpdates();
     renderVoteUpdates();
     renderEventUpdates();
+    updateLatestVote();
 }
 
 function updateLatestVote() {

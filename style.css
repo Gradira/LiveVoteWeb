@@ -90,6 +90,7 @@ h1 {
     grid-template-columns: .2fr 1fr;
     gap: 4px;
     align-items: center;
+    transition: transform 0.5s cubic-bezier(.42,2,.58,.6);
     /* animation: glow-red 1s ease; */
 }
 

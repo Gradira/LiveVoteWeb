@@ -27,10 +27,10 @@ function updateUser(user_id, leveling, total_points, total_votes) {
 
 function updateRanking() {
     country_ranking.sort((a, b) => {
-        if (b.points === a.points) {
-            return b.votes - a.votes;
+        if (b.cache.points === a.cache.points) {
+            return b.cache.votes - a.cache.votes;
         }
-        return b.points - a.points;
+        return b.cache.points - a.cache.points;
     });
     user_ranking.sort((a, b) => { if (b.votes === a.votes) { return b.leveling - a.leveling; } return a; });
 }
@@ -68,9 +68,12 @@ function processEvent(event) {
         user_ranking = data.user_ranking;
         latest_votes = data.latest_votes;
         latest_events = data.latest_events;
-        renderUpdates();
-        updateLatestVote();
 
+        if (!countries_initialized) {
+            initCountries();
+        }
+
+        renderUpdates();
         total_votes = 0;
         total_points = 0;
         recalcTotals();
