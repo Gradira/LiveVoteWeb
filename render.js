@@ -375,6 +375,9 @@ function renderCountryRanking() {
 
     // Update all countries (details, points, etc)
     country_ranking.forEach((country_data, index) => {
+        if ((country_update_cache === null) || !(country_update_cache.includes(country_data.alpha2))) {
+            return;
+        }
         const code = country_data.alpha2;
         let el = countryElements[code];
 
@@ -441,6 +444,8 @@ function renderCountryRanking() {
             }
         });
     });
+
+    country_update_cache = [];
 }
 
 function renderUserUpdates() {

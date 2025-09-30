@@ -25,14 +25,40 @@ function updateUser(user_id, leveling, total_points, total_votes) {
   user.total_votes = total_votes;
 }
 
-function updateRanking() {
+function updateRanking(cdata) {
+    let old_country_data = {};
+    country_ranking.forEach((country_data, index) => {
+        old_country_data[country_data.alpha2] = {};
+        old_country_data[country_data.alpha2]['points'] = country_data.cache.points;
+        old_country_data[country_data.alpha2]['votes'] = country_data.cache.votes;
+        old_country_data[country_data.alpha2]['rank'] = index + 1;
+        old_country_data[country_data.alpha2]['vote_rank'] = getVoteRank(country_data.alpha2);
+    });
+    /* let old_user_data = {};
+    user_ranking.forEach((user_data, index) => { old_user_data[user_data.user_id] = user_data.cache; }); */
+
+    updateCountry(cdata.vote.country.alpha2, cdata.vote.country.cache.points, cdata.vote.country.cache.votes);
+
     country_ranking.sort((a, b) => {
         if (b.cache.points === a.cache.points) {
             return b.cache.votes - a.cache.votes;
         }
         return b.cache.points - a.cache.points;
     });
-    user_ranking.sort((a, b) => { if (b.votes === a.votes) { return b.leveling - a.leveling; } return a; });
+    user_ranking.sort((a, b) => {
+        if (b.votes === a.votes) {
+            return b.leveling - a.leveling;
+        }
+            return a;
+    });
+
+    country_update_cache = [];
+    country_ranking.forEach((new_data, index) => {
+        const old_data = old_country_data[new_data.alpha2];
+        if ((old_data.rank != index + 1) || (old_data.vote_rank != getVoteRank(new_data.alpha2)) || (new_data.cache.points != old_data.points) || (new_data.cache.votes != old_data.votes)) {
+            country_update_cache.push(new_data.alpha2);
+        }
+    });
 }
 
 function getVoteRank(alpha2) {
@@ -68,6 +94,7 @@ function processEvent(event) {
         user_ranking = data.user_ranking;
         latest_votes = data.latest_votes;
         latest_events = data.latest_events;
+        country_update_cache = data.country_ranking.map(country => country.alpha2);
 
         if (!countries_initialized) {
             initCountries();
@@ -99,8 +126,7 @@ function processEvent(event) {
             latest_events.length = 20;
         }
 
-        updateCountry(data.vote.country.alpha2, data.vote.country.cache.points, data.vote.country.cache.votes);
-        updateRanking();
+        updateRanking(data);
         renderUpdates();
     } else {
         console.error('Unknown data type ' + data.type);

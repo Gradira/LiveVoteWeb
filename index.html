@@ -18,6 +18,10 @@
             let user_ranking = null;
             let total_votes = null;
             let total_points = null;
+
+            // update caches
+            let country_update_cache = null;
+            let user_update_cache = null;
         </script>
     <body onload="init(); loadWebSocket(); updateTime(); scroll(); loopMapViewbox();">
         <svg
